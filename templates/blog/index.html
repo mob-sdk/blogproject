@@ -1,0 +1,256 @@
+{% extends 'base.html' %}
+{% load static %}{# 需要在顶部 load static ，通过load模板标签将该模块引入后，才能在模板中使用{static}标签 #}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Black &amp; White</title>
+
+    <!-- meta -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- css -->
+    <link rel="stylesheet" href="http://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link rel="stylesheet" href="{% static 'blog/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'blog/css/pace.css' %}">
+    <link rel="stylesheet" href="{% static 'blog/css/custom.css' %}">
+    <link rel="stylesheet" href="http://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <!-- js -->
+    <!-- {￥% %}是模板标签 { {}}是模板变量 作用是在最终渲染的模板里显示由视图函数传过来的变量值，而这里我们使用的模板标签的功能则类似于函数-->
+    {# 这里的 static 模板标签，它把跟在后面的字符串'css/bootstrap.min.css'转换成正确的文件引入路径，这样的css和js文件才能被正确加载，样式才能正常显示 #}
+    {# static标签作用实际上是把后面的字符串加了一个/static/ 前缀 #}
+    {# 比如 {% static 'blog/css/pace.css' %} 最终渲染的值是 /static/blog/css/pace.css #}
+    {# /static/ 前缀是我们在 settings.py 文件中通过 STATIC_URL = '/static/' 指定的 #}
+    {# 为什么要使用 {% static %} 标签呢？想一下，目前 URL 的前缀是 /static/，如果哪一天因为某些原因，我们需要把 /static/ 改成 /resource/ #}
+    {#如果你是直接写的引用路劲而没有使用 static 模板标签，那么你可能需要改 N 个地方。如果你使用了 static 模板标签，那么只要在 settings.py 处改一个地方就可以了， #}
+    {# 即把 STATIC_URL = '/static/' 改成 STATIC_URL = '/resource/'。 #}
+    <script src="{% static 'blog/js/jquery-2.1.3.min.js' %}"></script>
+    <script src="{% static 'blog/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'blog/js/pace.min.js' %}"></script>
+    <script src="{% static 'blog/js/modernizr.custom.js' %}"></script>
+
+</head>
+
+<body>
+<div class="container">
+    <header id="site-header">
+        <div class="row">
+            <div class="col-md-4 col-sm-5 col-xs-8">
+                <div class="logo">
+                    <h1><a href="index.html"><b>Black</b> &amp; White</a></h1>
+                </div>
+            </div><!-- col-md-4 -->
+            <div class="col-md-8 col-sm-7 col-xs-4">
+                <nav class="main-nav" role="navigation">
+                    <div class="navbar-header">
+                        <button type="button" id="trigger-overlay" class="navbar-toggle">
+                            <span class="ion-navicon"></span>
+                        </button>
+                    </div>
+
+                    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                        <ul class="nav navbar-nav navbar-right">
+                            <li class="cl-effect-11"><a href="index.html" data-hover="首页">首页</a></li>
+                            <li class="cl-effect-11"><a href="full-width.html" data-hover="博客">博客</a></li>
+                            <li class="cl-effect-11"><a href="about.html" data-hover="关于">关于</a></li>
+                            <li class="cl-effect-11"><a href="contact.html" data-hover="联系">联系</a></li>
+                        </ul>
+                    </div><!-- /.navbar-collapse -->
+                </nav>
+                <div id="header-search-box">
+                    <a id="search-menu" href="#"><span id="search-icon" class="ion-ios-search-strong"></span></a>
+                    <div id="search-form" class="search-form">
+                        <form role="search" method="get" id="searchform" action="#">
+                            <input type="search" placeholder="搜索" required>
+                            <button type="submit"><span class="ion-ios-search-strong"></span></button>
+                        </form>
+                    </div>
+                </div>
+            </div><!-- col-md-8 -->
+        </div>
+    </header>
+</div>
+<div class="copyrights">Collect from <a href="http://www.cssmoban.com/">网页模板</a></div>
+<div class="copyrights">Modified by <a href="http://zmrenwu.com/">追梦人物的博客</a></div>
+
+<div class="content-body">
+    <div class="container">
+        <div class="row">
+            <main class="col-md-8">
+            {% block main %}
+                {% for post in post_list %}
+                <article class="post post-{{ post.pk }}">
+                    <header class="entry-header">
+                        <h1 class="entry-title">
+                            <a href="{{post.get_absolute_url}}">{{ post.title }}</a>
+                        </h1>
+                        <div class="entry-meta">
+                            <span class="post-category"><a href="#">{{ post.category.name }}</a></span>
+                            <span class="post-date"><a href="#"><time class="entry-date"
+                                                                      datetime="{{ post.created_time }}">{{ post.created_time }}</time></a></span>
+                            <span class="post-author"><a href="#">{{ post.author }}</a></span>
+                            {# 因为index.html到评论区需要进行页面的跳转，所以href超链接需要指定绝对URL，以及id=comment-area #}
+                            <span class="comments-link"><a href="{{ post.get_absolute_url }}#comment-area">{{ post.comment_set.count }} 评论</a></span>
+                            <span class="views-count"><a href="#">588 阅读</a></span>
+                        </div>
+                    </header>
+                    <div class="entry-content clearfix">
+                        {# p标签里显示的是摘要 excerpt #}
+                        <p>{{ post.excerpt }}...</p>
+                        <!--<p>{ post.body|truncatechars:54|safe }}</p> 第二中方法显示正文的前54个字-->
+                        <div class="read-more cl-effect-14">
+                            {# 文章 post 对应的详情页的 URL，让用户点击后可以跳转到 detail 页面 #}
+                            {# 由于 get_absolute_url 这个方法（我们定义在 Post 类中的）返回的是 post 对应的 URL，因此这里 {{ post.get_absolute_url }} 最终会被替换成该 post 自身的 URL。 #}
+                            <a href="{{ post.get_absolute_url }}" class="more-link">继续阅读 <span class="meta-nav">→</span></a>
+                        </div>
+                    </div>
+                </article>
+                {% empty %}{# 当post_list为空，即数据库里没有文章时显示{empty}下的内容，最后用endfor结束循环 #}
+                    <div class="no-post">暂时还没有发布文章</div>
+                    <!-- 你可能不太理解模板中的 post 和 post_list 是什么。post_list 是一个 QuerySet（类似于一个列表的数据结构），
+                    其中每一项都是之前定义在 blog\models.py 中的 Post 类的实例，且每个实例分别对应着数据库中每篇文章的记录。
+                    因此我们循环遍历 post_list ，每一次遍历的结果都保存在 post 变量里。所以我们使用模板变量来显示 post 的属性值。
+                    例如这里的 {post.pk}（pk 是 primary key 的缩写，即 post 对应于数据库中记录的 id 值，
+                    该属性尽管我们没有显示定义，但是 django 会自动为我们添加）。-->
+                {% endfor %}
+
+
+                <!-- 简单分页效果
+                <div class="pagination-simple">
+                    <a href="#">上一页</a>
+                    <span class="current">第 6 页 / 共 11 页</span>
+                    <a href="#">下一页</a>
+                </div>
+                -->
+                <div class="pagination">
+                    <ul>
+                        <li><a href="">1</a></li>
+                        <li><a href="">...</a></li>
+                        <li><a href="">4</a></li>
+                        <li><a href="">5</a></li>
+                        <li class="current"><a href="">6</a></li>
+                        <li><a href="">7</a></li>
+                        <li><a href="">8</a></li>
+                        <li><a href="">...</a></li>
+                        <li><a href="">11</a></li>
+                    </ul>
+                </div>
+            {% endblock main %}
+            </main>
+            <aside class="col-md-4">
+                <div class="widget widget-recent-posts">
+                    <h3 class="widget-title">最新文章</h3>
+                    <ul>
+                        <li>
+                            <a href="#">Django 博客开发入门教程：前言</a>
+                        </li>
+                        <li>
+                            <a href="#">Django 博客使用 Markdown 自动生成文章目录</a>
+                        </li>
+                        <li>
+                            <a href="#">部署 Django 博客</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="widget widget-archives">
+                    <h3 class="widget-title">归档</h3>
+                    <ul>
+                        <li>
+                            <a href="#">2017 年 5 月</a>
+                        </li>
+                        <li>
+                            <a href="#">2017 年 4 月</a>
+                        </li>
+                        <li>
+                            <a href="#">2017 年 3 月</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="widget widget-category">
+                    <h3 class="widget-title">分类</h3>
+                    <ul>
+                        <li>
+                            <a href="#">Django 博客教程 <span class="post-count">(13)</span></a>
+                        </li>
+                        <li>
+                            <a href="#">Python 教程 <span class="post-count">(11)</span></a>
+                        </li>
+                        <li>
+                            <a href="#">Django 用户认证 <span class="post-count">(8)</span></a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="widget widget-tag-cloud">
+                    <h3 class="widget-title">标签云</h3>
+                    <ul>
+                        <li>
+                            <a href="#">Django</a>
+                        </li>
+                        <li>
+                            <a href="#">Python</a>
+                        </li>
+                        <li>
+                            <a href="#">Java</a>
+                        </li>
+                        <li>
+                            <a href="#">笔记</a>
+                        </li>
+                        <li>
+                            <a href="#">文档</a>
+                        </li>
+                        <li>
+                            <a href="#">AngularJS</a>
+                        </li>
+                        <li>
+                            <a href="#">CSS</a>
+                        </li>
+                        <li>
+                            <a href="#">JavaScript</a>
+                        </li>
+                        <li>
+                            <a href="#">Snippet</a>
+                        </li>
+                        <li>
+                            <a href="#">jQuery</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="rss">
+                    <a href=""><span class="ion-social-rss-outline"></span> RSS 订阅</a>
+                </div>
+            </aside>
+        </div>
+    </div>
+</div>
+<footer id="site-footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <p class="copyright">&copy 2017 - 采集自<a href="http://www.cssmoban.com/"
+                                                        target="_blank" title="模板之家">模板之家</a>
+                    - 由<a href="http://zmrenwu.com/" title="网页模板" target="_blank">追梦人物的博客</a>修改
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- Mobile Menu -->
+<div class="overlay overlay-hugeinc">
+    <button type="button" class="overlay-close"><span class="ion-ios-close-empty"></span></button>
+    <nav>
+        <ul>
+            <li><a href="index.html">首页</a></li>
+            <li><a href="full-width.html">博客</a></li>
+            <li><a href="about.html">关于</a></li>
+            <li><a href="contact.html">联系</a></li>
+        </ul>
+    </nav>
+</div>
+
+<script src="{% static 'blog/js/script.js'%}"></script>
+
+</body>
+</html>

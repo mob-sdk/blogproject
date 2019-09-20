@@ -1,0 +1,195 @@
+{% load static %}{# 需要在顶部 load static ，通过load模板标签将该模块引入后，才能在模板中使用{static}标签 #}
+{% load blog_extras %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Black &amp; White</title>
+
+    <!-- meta -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- css -->
+    <link rel="stylesheet" href="http://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <!-- 能够像代码编辑器里一样让代码高亮就好了。
+    代码高亮我们借助 js 插件来实现，其原理就是 js 解析整个 html 页面，然后找到代码块元素，
+    为代码块中的元素添加样式。我们使用的插件叫做 highlight.js 和 highlightjs-line-numbers.js，前者提供基础的代码高亮，后者为代码块添加行号。
+    -->
+    <link href="https://cdn.bootcss.com/highlight.js/9.15.8/styles/github.min.css" rel="stylesheet">
+    <style>
+    .codehilite {
+      padding: 0;
+    }
+
+    /* for block of numbers */
+    .hljs-ln-numbers {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+
+      text-align: center;
+      color: #ccc;
+      border-right: 1px solid #CCC;
+      vertical-align: top;
+      padding-right: 5px;
+    }
+
+    .hljs-ln-n {
+      width: 30px;
+    }
+
+    /* for block of code */
+    .hljs-ln .hljs-ln-code {
+      padding-left: 10px;
+      white-space: pre;
+    }
+    </style>
+
+
+
+    <!--<link rel="stylesheet" href="{ static 'blog/css/bootstrap.min.css' %}">-->
+    <link rel="stylesheet" href="{% static 'blog/css/pace.css' %}">
+    <link rel="stylesheet" href="{% static 'blog/css/custom.css' %}">
+    <!-- js -->
+    <!-- {￥% %}是模板标签 { {}}是模板变量 作用是在最终渲染的模板里显示由视图函数传过来的变量值，而这里我们使用的模板标签的功能则类似于函数-->
+    {# 这里的 static 模板标签，它把跟在后面的字符串'css/bootstrap.min.css'转换成正确的文件引入路径，这样的css和js文件才能被正确加载，样式才能正常显示 #}
+    {# static标签作用实际上是把后面的字符串加了一个/static/ 前缀 #}
+    {# 比如 {% static 'blog/css/pace.css' %} 最终渲染的值是 /static/blog/css/pace.css #}
+    {# /static/ 前缀是我们在 settings.py 文件中通过 STATIC_URL = '/static/' 指定的 #}
+    {# 为什么要使用 {% static %} 标签呢？想一下，目前 URL 的前缀是 /static/，如果哪一天因为某些原因，我们需要把 /static/ 改成 /resource/ #}
+    {#如果你是直接写的引用路劲而没有使用 static 模板标签，那么你可能需要改 N 个地方。如果你使用了 static 模板标签，那么只要在 settings.py 处改一个地方就可以了， #}
+    {# 即把 STATIC_URL = '/static/' 改成 STATIC_URL = '/resource/'。 #}
+
+    <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <!--<script src="{ static 'blog/js/jquery-2.1.3.min.js' %}"></script>-->
+    <!--<script src="{ static 'blog/js/bootstrap.min.js' %}"></script>-->
+    <script src="{% static 'blog/js/pace.min.js' %}"></script>
+    <script src="{% static 'blog/js/modernizr.custom.js' %}"></script>
+
+</head>
+<!--这里 django 会通过全局上下文自动把 messages 变量传给模板，这个变量里存储我们发送的消息内容，然后就是循环显示消息了。
+这里我们使用了 bootstrap 的一个 alert 组件，为其设置不同的 class 会显示不同的颜色，所以之前添加消息时传入的 extra_tags 就派上了用场。
+比如这里 alert-{ message.tags }}，当传入的是 success 时，类名就为 alert-success，这时显示的消息背景颜色就是绿色，传入的是 dangerous，则显示的就是红色。-->
+{% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+                aria-hidden="true">&times;</span></button>
+        {{ message }}
+      </div>
+    {% endfor %}
+{% endif %}
+
+
+<body>
+<div class="container">
+    <header id="site-header">
+        <div class="row">
+            <div class="col-md-4 col-sm-5 col-xs-8">
+                <div class="logo">
+                    <h1><a href="{% url 'blog:index' %}"><b>Black</b> &amp;amp; White</a></h1>
+                </div>
+            </div><!-- col-md-4 -->
+            <div class="col-md-8 col-sm-7 col-xs-4">
+                <nav class="main-nav" role="navigation">
+                    <div class="navbar-header">
+                        <button type="button" id="trigger-overlay" class="navbar-toggle">
+                            <span class="ion-navicon"></span>
+                        </button>
+                    </div>
+
+                    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                        <ul class="nav navbar-nav navbar-right">
+                            <li class="cl-effect-11"><a href="{% url 'blog:index' %}" data-hover="首页">首页</a></li>
+                            <li class="cl-effect-11"><a href="full-width.html" data-hover="博客">博客</a></li>
+                            <li class="cl-effect-11"><a href="about.html" data-hover="关于">关于</a></li>
+                            <li class="cl-effect-11"><a href="contact.html" data-hover="联系">联系</a></li>
+                        </ul>
+                    </div><!-- /.navbar-collapse -->
+                </nav>
+                <div id="header-search-box">
+                    <a id="search-menu" href="#"><span id="search-icon" class="ion-ios-search-strong"></span></a>
+                    <div id="search-form" class="search-form">
+                        <form role="search" method="get" id="searchform" action="#">
+                            <input type="search" placeholder="搜索" required>
+                            <button type="submit"><span class="ion-ios-search-strong"></span></button>
+                        </form>
+                    </div>
+                </div>
+            </div><!-- col-md-8 -->
+        </div>
+    </header>
+</div>
+<div class="copyrights">Collect from <a href="http://www.cssmoban.com/">网页模板</a></div>
+<div class="copyrights">Modified by <a href="http://zmrenwu.com/">追梦人物的博客</a></div>
+
+<div class="content-body">
+    <div class="container">
+        <div class="row">
+        {# 这里 block 也是一个模板标签，其作用是占位。比如这里的 block main  endblock main  是一个占位框，main 是我们给这个 block 取的名字 #}
+            <main class="col-md-8">
+                {% block main %}
+                {% endblock main %}
+            </main>
+            <aside class="col-md-4">
+                {% block toc %}
+                {% endblock toc %}
+                <!--此外我们定义的 show_recent_posts 标签可以接收参数，默认为 5，即显示 5 篇文章，
+                如果要控制其显示 10 篇文章，可以使用 { show_recent_posts 10 %} 这种方式传入参数。-->
+                {% show_recent_posts %}
+                {% show_archives %}
+                {% show_categories %}
+                {% show_tags %}
+
+                <div class="rss">
+                    <a href=""><span class="ion-social-rss-outline"></span></a>
+                </div>
+
+            </aside>
+            {# 当  block toc  endblock toc  中没有任何内容时， block toc  endblock toc  在模板中不会显示。但当其中有内容是，模板就会显示 block 中的内容。 #}
+        </div>
+    </div>
+</div>
+<footer id="site-footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <p class="copyright">&copy 2017 - 采集自<a href="http://www.cssmoban.com/"
+                                                        target="_blank" title="模板之家">模板之家</a>
+                    - 由<a href="http://zmrenwu.com/" title="网页模板" target="_blank">追梦人物的博客</a>修改
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- Mobile Menu -->
+<div class="overlay overlay-hugeinc">
+    <button type="button" class="overlay-close"><span class="ion-ios-close-empty"></span></button>
+    <nav>
+        <ul>
+            <li><a href="{% url 'blog:index' %}">首页</a></li>
+            <li><a href="full-width.html">博客</a></li>
+            <li><a href="about.html">关于</a></li>
+            <li><a href="contact.html">联系</a></li>
+        </ul>
+    </nav>
+</div>
+
+<script src="{% static 'blog/js/script.js'%}"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.8/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlightjs-line-numbers.js/2.7.0/highlightjs-line-numbers.min.js"></script>
+<script>
+    hljs.initHighlightingOnLoad();
+    hljs.initLineNumbersOnLoad();
+</script>
+
+
+</body>
+</html>
